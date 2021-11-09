@@ -1,36 +1,44 @@
 {
-    "users": [
-        {
-          "id": 1,
-          "name": "Maria",
-          "address": "Bangalore,Karnataka",
-          "email": "maria@gmail.com",
-          "phoneNo": 1234567890,
-          "password": "maria123456"
-        },
-        {
-          "name": "Setna",
-          "address": "Bangalore",
-          "phoneNo": "1234567890",
-          "email": "setna@gmail.com",
-          "password": "Setna@123",
-          "id": 2
-        },
-        {
-          "name": "Sera",
-          "address": "bangalore",
-          "phoneNo": "1234567890",
-          "email": "sera@gmail.com",
-          "password": "Sera@1234",
-          "id": 3
-        },
-        {
-          "name": "Daisy",
-          "address": "Bangalore",
-          "phoneNo": "1234567890",
-          "email": "daisy@gmail.com",
-          "password": "Daisy@123",
-          "id": 4
-        }
-      ]
+  "users": [
+    {
+      "id": 1,
+      "name": "Maria",
+      "address": "Bangalore,Karnataka",
+      "email": "maria@gmail.com",
+      "phoneNo": 1234567890,
+      "password": "maria123456"
+    },
+    {
+      "name": "Setna",
+      "address": "Bangalore",
+      "phoneNo": "1234567890",
+      "email": "setna@gmail.com",
+      "password": "Setna@123",
+      "id": 2
+    },
+    {
+      "name": "Sera",
+      "address": "bangalore",
+      "phoneNo": "1234567890",
+      "email": "sera@gmail.com",
+      "password": "Sera@1234",
+      "id": 3
+    },
+    {
+      "name": "Daisy",
+      "address": "Bangalore",
+      "phoneNo": "1234567890",
+      "email": "daisy@gmail.com",
+      "password": "Daisy@123",
+      "id": 4
+    },
+    {
+      "id": 5,
+      "email": "parv@gmail.com",
+      "password": "maria123451",
+      "address": "india",
+      "phone": 123456123,
+      "name": "Parv"
+    }
+  ]
 }
