@@ -31,7 +31,7 @@ function isAuthenticated({email, phone}){
 }
 
 // Register New User
-server.post('/auth/register', (req, res) => {
+server.post('/register', (req, res) => {
   console.log("register endpoint called; request body:");
   console.log(req.body);
   const {email,password,address,phone,name} = req.body;
@@ -76,7 +76,7 @@ fs.readFile("./users.json", (err, data) => {
 })
 
 // Login to one of the users from ./users.json
-server.post('/auth/login', (req, res) => {
+server.post('/login', (req, res) => {
   console.log("login endpoint called; request body:");
   console.log(req.body);
   const {email, password} = req.body;
