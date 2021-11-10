@@ -33,18 +33,32 @@ function isAuthenticated({ email, phone }) {
 	return userdb.users.findIndex((user) => user.email === email && user.phone === phone) !== -1;
 }
 
-function addReview(id, newReview,jsonObj) {
-  console.log("in")
-  for (var i = 0; i < jsonObj.length; i++) {
-    if (jsonObj[i].id == id) {
-      console.log(jsonObj[i].id)
-      jsonObj[i].reviews = jsonObj[i].reviews.concat([newReview]);
-      return;
-    }
-  }
+function addReview(id, newReview, jsonObj) {
+	console.log('in');
+	for (var i = 0; i < jsonObj.length; i++) {
+		if (jsonObj[i].id == id) {
+			console.log(jsonObj[i]);
+			jsonObj[i].reviews = jsonObj[i].reviews.concat([newReview]);
+			return 1;
+		}
+	}
+	return 0;
+}
+function rescheduleRoom(bookid, jsonObj, startDate, endDate) {
+	console.log('reschedule');
+	for (var i = 0; i < jsonObj.length; i++) {
+		if (jsonObj[i].id == bookid) {
+			console.log(jsonObj[i]);
+			jsonObj[i].startDate = startDate;
+			jsonObj[i].endDate = endDate;
+			return 1;
+		}
+	}
+	return 0;
 }
 
-// Register New User
+//-------------------------> Register New User
+
 server.post('/register', (req, res) => {
 	console.log('register endpoint called; request body:');
 	console.log(req.body);
@@ -90,15 +104,15 @@ server.post('/register', (req, res) => {
 			}
 		});
 	});
-  req.cookies.id = last_item_id + 1;
-	// Create token for new user
+
+	// Create token for new user 	req.cookies.id = last_item_id + 1; const cookid = req
 	const access_token = createToken({ email, password });
 	console.log('Access Token:' + access_token);
-	res.status(200).json({ access_token });
+	res.status(200).json({ req });
 });
 
-// -------------->
-// Login to one of the users from ./users.json
+// --------------> /login
+// Login to one of the users from users.json
 server.post('/login', (req, res) => {
 	console.log('login endpoint called; request body:');
 	console.log(req.body);
@@ -114,14 +128,14 @@ server.post('/login', (req, res) => {
 	res.status(200).json({ access_token });
 });
 
-//-------------------------> Add Review
-server.post('/addReview/:hotel', (req, res) => {
+//------------------------- /addReview/:hotel (Add Review)
+server.put('/addReview/:hotel', (req, res) => {
 	console.log('addReview endpoint called call with params; request params:');
 	console.log(req.params.hotel);
 	console.log(req.body);
 	const { reviews } = req.body;
 	var hotel_id = req.params.hotel;
-  /**/
+	/**/
 	fs.readFile('./hotels.json', (err, data) => {
 		if (err) {
 			const status = 401;
@@ -132,33 +146,39 @@ server.post('/addReview/:hotel', (req, res) => {
 
 		// Get current hotels data
 		var data = JSON.parse(data.toString());
-    // console.log(data.hotels);
+		// console.log(data.hotels);
 		// Get the id of last user
-    const result = hoteldb.hotels.filter((item) => {item.id == hotel_id});
-    
-    //add review data
-    addReview(hotel_id,reviews,data.hotels)
-    //console.log(data.hotels);
-		var writeData = fs.writeFile('./hotels.json', JSON.stringify(data), (err, result) => {
-			// WRITE
-			if (err) {
-				const status = 401;
-				const message = err;
-				res.status(status).json({ status, message });
-				return;
-			}
+		const result = hoteldb.hotels.filter((item) => {
+			item.id == hotel_id;
 		});
-  });
-  res.status(200).json({ message:"Review Addded Successfully" });
+
+		//add review data
+		var check = addReview(hotel_id, reviews, data.hotels);
+		console.log(check);
+		if (check) {
+			// WRITE
+			var writeData = fs.writeFile('./hotels.json', JSON.stringify(data), (err, result) => {
+				if (err) {
+					const status = 401;
+					const message = err;
+					res.status(status).json({ status, message });
+					return;
+				}
+			});
+			res.status(200).json({ message: 'Review Addded Successfully' });
+		} else {
+			res.status(404).json({ message: 'No hotel found' });
+		}
+	});
 });
 
-//--------------------------- post => /bookRoom/:hotel
+//---------------------------  /bookRoom/:hotel (Book Hotel)
 server.post('/bookRoom/:hotel', (req, res) => {
 	console.log('bookRoom endpoint ; request params:');
-  const { startDate,endDate,noOfPersons,noOfRooms,typeOfRoom,hotelName } = req.body;
-  //var userId = req.cookies.id;
-  var hotelId = req.params.hotel;
-  console.log({ startDate,endDate,noOfPersons,noOfRooms,typeOfRoom,hotelName });
+	const { startDate, endDate, noOfPersons, noOfRooms, typeOfRoom, hotelName } = req.body;
+	//var userId = req.cookies.id;
+	var hotelId = req.params.hotel;
+	console.log({ startDate, endDate, noOfPersons, noOfRooms, typeOfRoom, hotelName });
 	fs.readFile('./bookings.json', (err, data) => {
 		if (err) {
 			const status = 401;
@@ -167,20 +187,21 @@ server.post('/bookRoom/:hotel', (req, res) => {
 			return;
 		}
 		// Get current hotels data
-    var data = JSON.parse(data.toString());
-    var last_item_id = data.bookings[data.bookings.length - 1].id;
-    data.bookings.push({
-      id: last_item_id+1,
-      //userId: userId, 
-      hotelId: hotelId,
-      startDate: startDate,
-      endDate: endDate,
-      noOfPersons: noOfPersons,
-      noOfRooms: noOfRooms,
-      typeOfRoom: typeOfRoom,
-      hotelName: hotelName})
+		var data = JSON.parse(data.toString());
+		var last_item_id = data.bookings[data.bookings.length - 1].id;
+		data.bookings.push({
+			id: last_item_id + 1,
+			//userId: userId,
+			hotelId: hotelId,
+			startDate: startDate,
+			endDate: endDate,
+			noOfPersons: noOfPersons,
+			noOfRooms: noOfRooms,
+			typeOfRoom: typeOfRoom,
+			hotelName: hotelName,
+		});
 
-		var writeData = fs.writeFile('./booking.json', JSON.stringify(data), (err, result) => {
+		var writeData = fs.writeFile('./bookings.json', JSON.stringify(data), (err, result) => {
 			// WRITE
 			if (err) {
 				const status = 401;
@@ -189,14 +210,45 @@ server.post('/bookRoom/:hotel', (req, res) => {
 				return;
 			}
 		});
-  });
-  res.status(200).json({ message:"Booking Successful" });
+	});
+	res.status(200).json({ message: 'Booking Successful' });
 });
 
+//---------------------------------> /reschedule/:bookid
+server.put('/reschedule/:bookid', (req, res) => {
+	console.log('reschedule endpoint called call with params; request params:');
+	console.log(req.params.bookid);
+	const { startDate, endDate } = req.body;
+	var bookid = req.params.bookid;
+	/**/
+	fs.readFile('./bookings.json', (err, data) => {
+		if (err) {
+			const status = 401;
+			const message = err;
+			res.status(status).json({ status, message });
+			return;
+		}
 
-
-
-
+		// Get current booking data
+		var data = JSON.parse(data.toString());
+		//call rescheduleRoom
+		var check = rescheduleRoom(bookid, data.bookings, startDate, endDate);
+		if (check) {
+			var writeData = fs.writeFile('./bookings.json', JSON.stringify(data), (err, result) => {
+				// WRITE
+				if (err) {
+					const status = 401;
+					const message = err;
+					res.status(status).json({ status, message });
+					return;
+				}
+			});
+			res.status(200).json({ message: 'Reschedule Successfully' });
+		} else {
+			res.status(400).json({ message: 'Reschedule Fail' });
+		}
+	});
+});
 
 server.use(/^(?!\/).*$/, (req, res, next) => {
 	if (req.headers.authorization === undefined || req.headers.authorization.split(' ')[0] !== 'Bearer') {
@@ -222,8 +274,6 @@ server.use(/^(?!\/).*$/, (req, res, next) => {
 		res.status(status).json({ status, message });
 	}
 });
-
-
 
 server.use(router);
 

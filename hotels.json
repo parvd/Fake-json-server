@@ -50,7 +50,11 @@
       "phoneNo": 9393939393,
       "address": "190/1B, Mumbai, Maharastra",
       "imageUrl": "5.jpg",
-      "reviews": ["Nice Rooms", "Good Rooms"]
+      "reviews": [
+        "Nice Rooms",
+        "Good Rooms",
+        "Spaceous Rooms"
+      ]
     }
   ]
 }
